@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicle Registry Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="admin-shell">
+        <header class="admin-topbar">
+            <div>
+                <h1>🚗 Vehicle Registry</h1>
+            </div>
+            <div class="admin-actions">
+                <a href="{{ url_for('home') }}" class="nav-link">Home</a>
+                <a href="{{ url_for('live_monitor') }}" class="nav-link">Live Monitor</a>
+                <a href="{{ url_for('detection_history') }}" class="nav-link">History</a>
+                <a href="{{ url_for('admin_logout') }}" class="nav-link danger">Logout</a>
+            </div>
+        </header>
+
+        <main class="admin-grid">
+            <section class="admin-panel">
+                <h2>{% if selected_vehicle %}Edit Vehicle{% else %}Add New Vehicle{% endif %}</h2>
+                <form method="POST" action="{{ url_for('admin_vehicles') }}">
+                    <input type="hidden" name="action" value="{% if selected_vehicle %}edit{% else %}add{% endif %}">
+                    {% if selected_vehicle %}
+                    <input type="hidden" name="vehicle_id" value="{{ selected_vehicle[0] }}">
+                    {% endif %}
+
+                    <div class="form-row">
+                        <label>Plate Number</label>
+                        <input type="text" name="plate" value="{{ selected_vehicle[1] if selected_vehicle else '' }}" required>
+                    </div>
+
+                    <div class="form-row two-col">
+                        <div>
+                            <label>Registration Date</label>
+                            <input type="date" name="registration_date" value="{{ selected_vehicle[2] if selected_vehicle else '' }}">
+                        </div>
+                        <div>
+                            <label>Expiry Date</label>
+                            <input type="date" name="expiry_date" value="{{ selected_vehicle[3] if selected_vehicle else '' }}">
+                        </div>
+                    </div>
+
+                    <div class="form-row two-col">
+                        <div>
+                            <label>Vehicle Type</label>
+                            <input type="text" name="vehicle_type" value="{{ selected_vehicle[4] if selected_vehicle else '' }}" placeholder="Private Car">
+                        </div>
+                        <div>
+                            <label>Status</label>
+                            <select name="status">
+                                <option value="Active" {% if selected_vehicle and selected_vehicle[5] == 'Active' %}selected{% endif %}>Active</option>
+                                <option value="Expired" {% if selected_vehicle and selected_vehicle[5] == 'Expired' %}selected{% endif %}>Expired</option>
+                                <option value="Blocked" {% if selected_vehicle and selected_vehicle[5] == 'Blocked' %}selected{% endif %}>Blocked</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit">{% if selected_vehicle %}Update Vehicle{% else %}Save Vehicle{% endif %}</button>
+                        {% if selected_vehicle %}
+                        <a class="cancel-link" href="{{ url_for('admin_vehicles') }}">Cancel</a>
+                        {% endif %}
+                    </div>
+                </form>
+            </section>
+
+            <section class="admin-panel table-panel">
+                <h2>Registered Vehicles</h2>
+                <div class="table-wrap">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Plate</th>
+                                <th>Reg. Date</th>
+                                <th>Expiry</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for vehicle in vehicles %}
+                            <tr>
+                                <td>{{ vehicle[1] }}</td>
+                                <td>{{ vehicle[2] or '--' }}</td>
+                                <td>{{ vehicle[3] or '--' }}</td>
+                                <td>{{ vehicle[4] or '--' }}</td>
+                                <td>
+                                    <span class="status-pill {{ vehicle[5].lower() if vehicle[5] else 'active' }}">{{ vehicle[5] or 'Active' }}</span>
+                                </td>
+                                <td class="action-cell">
+                                    <a class="mini-btn" href="{{ url_for('admin_vehicles') }}?edit={{ vehicle[0] }}">Edit</a>
+                                    <form method="POST" action="{{ url_for('admin_vehicles') }}" class="delete-form">
+                                        <input type="hidden" name="action" value="delete">
+                                        <input type="hidden" name="vehicle_id" value="{{ vehicle[0] }}">
+                                        <button type="submit" class="mini-btn danger-btn">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="6" class="empty-table">No registered vehicles yet.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

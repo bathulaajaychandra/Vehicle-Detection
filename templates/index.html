@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ANPR Vehicle Verification</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="shell">
+        <header class="topbar">
+            <div class="brand">🚗 ANPR Vehicle Verification</div>
+            <nav class="topbar-actions page-nav" aria-label="Main navigation">
+                <div class="status">
+                    <span class="status-dot"></span>
+                    Monitoring system
+                </div>
+                <a href="{{ url_for('home') }}" class="nav-link active">Dashboard</a>
+                <a href="{{ url_for('live_monitor') }}" class="nav-link">Live Monitor</a>
+                <a href="{{ url_for('detection_history') }}" class="nav-link">History</a>
+                <a href="{{ url_for('admin_login') }}" class="admin-link">Admin</a>
+            </nav>
+        </header>
+
+        <main class="dashboard">
+            <section class="stats">
+                <div class="stat-card">
+                    <span>Total Detections</span>
+                    <strong>{{ data|length }}</strong>
+                </div>
+                <div class="stat-card">
+                    <span>Latest Plate</span>
+                    <strong>{% if data %}{{ data[0][0] }}{% else %}--{% endif %}</strong>
+                </div>
+                <div class="stat-card">
+                    <span>Last Seen</span>
+                    <strong>{% if data %}{{ data[0][1] }}{% else %}--{% endif %}</strong>
+                </div>
+            </section>
+
+            <section class="verification-grid">
+                <div class="panel upload-panel">
+                    <h2>📸 Upload Vehicle Photo</h2>
+                    <form id="uploadForm" enctype="multipart/form-data">
+                        <label class="file-picker">
+                            <input type="file" id="vehicleImage" accept="image/*">
+                            <span>Choose vehicle image</span>
+                        </label>
+                        <button type="submit">Detect plate & verify</button>
+                    </form>
+                    <label class="file-picker folder-picker">
+                        <input type="file" id="vehicleFolder" accept="image/*" webkitdirectory directory multiple>
+                        <span>Choose a folder of vehicle photos</span>
+                    </label>
+                    <p id="batchProgress" class="batch-progress" aria-live="polite">Supports folders containing JPG, PNG, or WEBP images.</p>
+                    <div id="batchResults" class="batch-results" aria-live="polite"></div>
+                </div>
+
+                <div class="panel camera-panel">
+                    <h2>🎥 Camera Access</h2>
+                    <video id="cameraPreview" autoplay playsinline muted></video>
+                    <div class="camera-actions">
+                        <button id="startCameraBtn" type="button">Start camera</button>
+                        <button id="captureBtn" type="button" class="secondary">Capture & check</button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel result-panel">
+                <h2>✅ Registration Result</h2>
+                <div id="resultBox" class="result-box neutral">
+                    <p>Upload a photo or use the camera to detect the vehicle and verify registration.</p>
+                </div>
+            </section>
+
+            <section class="panel">
+                {% if data %}
+                <div class="table-wrap">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Plate</th>
+                                <th>Time</th>
+                                <th>Source</th>
+                                <th>Image</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in data %}
+                            <tr>
+                                <td><span class="plate-pill">{{ row[0] }}</span></td>
+                                <td>{{ row[1] }}</td>
+                                <td><span class="source-tag">{{ row[2] }}</span></td>
+                                <td class="image-cell">
+                                    {% if row[3] %}
+                                    <img class="vehicle-image" src="{{ row[3] }}" alt="Detected vehicle {{ row[0] }}">
+                                    {% else %}--{% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">No vehicles have been detected yet. The system is waiting for input.</div>
+                {% endif %}
+            </section>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

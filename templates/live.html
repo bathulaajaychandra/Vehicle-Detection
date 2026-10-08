@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live ANPR Monitor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="shell">
+        <header class="topbar">
+            <div class="brand">🎥 Live ANPR Monitor</div>
+            <nav class="topbar-actions page-nav" aria-label="Main navigation">
+                <a href="{{ url_for('home') }}" class="nav-link">Dashboard</a>
+                <a href="{{ url_for('live_monitor') }}" class="nav-link active">Live Monitor</a>
+                <a href="{{ url_for('detection_history') }}" class="nav-link">History</a>
+                <a href="{{ url_for('admin_login') }}" class="admin-link">Admin</a>
+            </nav>
+        </header>
+
+        <main class="live-layout">
+            <section class="live-camera panel">
+                <div class="section-heading">
+                    <div>
+                        <h1>Real-time vehicle verification</h1>
+                        <p>Keep the camera on the vehicle. The browser samples frames and checks plates continuously.</p>
+                    </div>
+                    <div class="live-indicator"><span id="liveDot"></span><span id="liveState">Camera off</span></div>
+                </div>
+
+                <div class="video-stage">
+                    <video id="cameraPreview" autoplay playsinline muted></video>
+                    <div class="video-overlay"><span>ANPR CAMERA</span><span id="scanClock">--:--:--</span></div>
+                    <div id="videoPlaceholder" class="video-placeholder">
+                        <strong>Camera is ready to start</strong>
+                        <span>Allow camera access when your browser asks.</span>
+                    </div>
+                </div>
+
+                <div class="live-controls">
+                    <label class="control-label" for="cameraSelect">Camera</label>
+                    <select id="cameraSelect" aria-label="Choose camera">
+                        <option value="">Default camera</option>
+                    </select>
+                    <label class="control-label" for="scanInterval">Scan interval</label>
+                    <select id="scanInterval">
+                        <option value="1500">Fast (1.5 sec)</option>
+                        <option value="2500" selected>Balanced (2.5 sec)</option>
+                        <option value="4000">Low CPU (4 sec)</option>
+                    </select>
+                    <button id="startLiveBtn" type="button">Start live scan</button>
+                    <button id="stopLiveBtn" type="button" class="secondary" disabled>Stop camera</button>
+                </div>
+                <p class="camera-note">Live camera needs browser permission and a secure origin (localhost or HTTPS). Processing runs on this computer; scans are saved at most once per plate every 15 seconds.</p>
+            </section>
+
+            <aside class="live-side">
+                <section class="panel live-result-panel">
+                    <div class="section-heading compact">
+                        <h2>Latest result</h2>
+                        <span id="scanCount" class="scan-count">0 scans</span>
+                    </div>
+                    <div id="liveResult" class="result-box neutral">
+                        <h3>Waiting for camera</h3>
+                        <p>Start live scan to detect and verify vehicle plates.</p>
+                    </div>
+                </section>
+
+                <section class="panel">
+                    <div class="section-heading compact">
+                        <h2>Recent detections</h2>
+                        <a href="{{ url_for('detection_history') }}" class="text-link">View all</a>
+                    </div>
+                    <div id="liveRecent" class="recent-list">
+                        <p class="empty-state">No detections yet.</p>
+                    </div>
+                </section>
+            </aside>
+        </main>
+    </div>
+    <script src="{{ url_for('static', filename='live.js') }}"></script>
+</body>
+</html>

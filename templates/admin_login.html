@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="auth-shell">
+        <div class="auth-card">
+            <h1>🔐 Admin Login</h1>
+            <p>Access the vehicle registry management panel.</p>
+
+            {% if error %}
+            <div class="auth-error">{{ error }}</div>
+            {% endif %}
+
+            <form method="POST" action="{{ url_for('admin_login') }}">
+                <label>
+                    Username
+                    <input type="text" name="username" placeholder="admin" required>
+                </label>
+                <label>
+                    Password
+                    <input type="password" name="password" placeholder="admin123" required>
+                </label>
+                <button type="submit">Login</button>
+            </form>
+
+            <div class="auth-footer">
+                <a href="{{ url_for('home') }}">Back to vehicle check</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
